@@ -1,0 +1,7 @@
+{
+  "name": "Gemini Face Forge",
+  "description": "Real-time facial animation capture using blend shapes, enhanced with Gemini AI for expression analysis.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
