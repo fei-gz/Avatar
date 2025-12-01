@@ -25,7 +25,7 @@ export default function App() {
     const initFaceLandmarker = async () => {
       try {
         const filesetResolver = await FilesetResolver.forVisionTasks(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
         );
         const landmarker = await FaceLandmarker.createFromOptions(filesetResolver, {
           baseOptions: {
@@ -61,15 +61,19 @@ export default function App() {
 
       if (video.currentTime !== lastVideoTime.current) {
         lastVideoTime.current = video.currentTime;
-        const results = faceLandmarker.detectForVideo(video, startTimeMs);
+        try {
+          const results = faceLandmarker.detectForVideo(video, startTimeMs);
 
-        if (results.faceBlendshapes && results.faceBlendshapes.length > 0 && results.faceLandmarks && results.faceLandmarks.length > 0) {
-           // We only take the first face
-           setFaceData({
-             blendshapes: results.faceBlendshapes[0].categories,
-             landmarks: results.faceLandmarks[0],
-             transformMatrix: results.facialTransformationMatrixes?.[0]?.data || []
-           });
+          if (results.faceBlendshapes && results.faceBlendshapes.length > 0 && results.faceLandmarks && results.faceLandmarks.length > 0) {
+             // We only take the first face
+             setFaceData({
+               blendshapes: results.faceBlendshapes[0].categories,
+               landmarks: results.faceLandmarks[0],
+               transformMatrix: results.facialTransformationMatrixes?.[0]?.data || []
+             });
+          }
+        } catch (e) {
+          console.warn("Detection error:", e);
         }
       }
     }
@@ -166,11 +170,6 @@ export default function App() {
              <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2">
                 <Video size={14} /> Control Deck
              </h2>
-
-             {/* This panel floats in the 3D view actually, let's move it here or keep it floating? 
-                 The prompt asked for a website. A sidebar is cleaner. Let's render the AnalysisPanel contents here directly or use the component.
-                 I'll repurpose the AnalysisPanel to be embedded here for better UX.
-             */}
              
              <div className="space-y-6">
                 <div className="bg-gray-800/50 p-4 rounded-xl border border-white/5">

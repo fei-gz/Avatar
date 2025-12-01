@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useMemo, Suspense } from 'react';
-import { Canvas, useFrame, useGraph } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment, useGLTF, Loader, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 import { FaceData } from '../types';
@@ -20,7 +20,6 @@ const BLENDSHAPE_MAP: Record<string, string> = {
 
 const Avatar: React.FC<FaceMeshProps> = ({ faceData }) => {
   const { scene } = useGLTF(AVATAR_URL);
-  const { nodes } = useGraph(scene);
   const headRef = useRef<THREE.Group>(null);
 
   // Analyze the model once loaded to find meshes with morph targets
@@ -35,8 +34,6 @@ const Avatar: React.FC<FaceMeshProps> = ({ faceData }) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
         if (mesh.morphTargetDictionary && mesh.morphTargetInfluences) {
-          console.log(`Mesh ${mesh.name} has ${Object.keys(mesh.morphTargetDictionary).length} morph targets.`);
-          
           // Create a normalized dictionary (strip prefixes, handle case)
           const dict: Record<string, number> = {};
           Object.entries(mesh.morphTargetDictionary).forEach(([key, index]) => {
@@ -81,7 +78,8 @@ const Avatar: React.FC<FaceMeshProps> = ({ faceData }) => {
       });
     });
 
-    // 2. Apply Head Pose (Rotation)
+    // 2. Apply Head Pose (Rotation) - DISABLED as per user request to keep body stationary
+    /* 
     if (headRef.current && faceData.transformMatrix && faceData.transformMatrix.length === 16) {
         const matrix = new THREE.Matrix4();
         matrix.fromArray(faceData.transformMatrix);
@@ -95,6 +93,7 @@ const Avatar: React.FC<FaceMeshProps> = ({ faceData }) => {
         // Apply rotation
         headRef.current.quaternion.slerp(quaternion, 0.3);
     }
+    */
   });
 
   return (
